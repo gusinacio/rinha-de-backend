@@ -14,6 +14,9 @@ pub enum ServerError {
     ValidationError(#[from] validator::ValidationErrors),
     #[error(transparent)]
     AxumFormRejection(#[from] JsonRejection),
+
+    #[error(transparent)]
+    SqlxError(#[from] sqlx::Error),
 }
 
 impl IntoResponse for ServerError {
@@ -23,6 +26,7 @@ impl IntoResponse for ServerError {
             ServerError::ValidationError(_)
             | ServerError::FailedToSerialize(_)
             | ServerError::AxumFormRejection(_)
+            | ServerError::SqlxError(_)
             | ServerError::TransactionWouldExceedLimit => StatusCode::UNPROCESSABLE_ENTITY,
         };
         (status_code, self.to_string()).into_response()

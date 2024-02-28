@@ -1,6 +1,7 @@
 use axum::Router;
-use database::{migrate, Database};
+use database::Database;
 use router::client_router;
+use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 
 mod database;
@@ -10,8 +11,11 @@ mod validator;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let database = Database::new();
-    migrate(database.clone()).await;
+    let pool = PgPoolOptions::new()
+        .max_connections(10)
+        .connect("postgres://postgres:postgres@localhost:5434/postgres")
+        .await?;
+    let database = Database::new(pool);
     let clients = client_router();
     let app = Router::new()
         .nest("/clientes", clients)

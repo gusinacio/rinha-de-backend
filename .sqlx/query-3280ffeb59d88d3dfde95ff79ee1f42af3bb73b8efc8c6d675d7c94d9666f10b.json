@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO transaction (wallet_id, amount, \"type\", description) VALUES ($1, $2, $3, $4);",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "transaction_type",
+            "kind": {
+              "Enum": [
+                "c",
+                "d"
+              ]
+            }
+          }
+        },
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3280ffeb59d88d3dfde95ff79ee1f42af3bb73b8efc8c6d675d7c94d9666f10b"
+}

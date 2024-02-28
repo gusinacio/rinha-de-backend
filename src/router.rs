@@ -54,8 +54,7 @@ async fn get_statement(
     Path(id): Path<u32>,
     database: State<Database>,
 ) -> Result<Json<Statement>, ServerError> {
-    let mut stmt = database.get_statement(&id).await?;
-    stmt.update_statement_date();
+    let stmt = database.get_statement(&id).await?;
     Ok(Json(stmt))
 }
 

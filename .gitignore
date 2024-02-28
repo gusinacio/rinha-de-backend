@@ -2,3 +2,4 @@
 /load-test
 start-test.sh
 /.vscode
+.env

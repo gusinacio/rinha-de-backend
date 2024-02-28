@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT \n                amount, \n                \"type\" as \"type: TransactionType\", \n                \"description\", \n                created_at \n            FROM transaction \n            WHERE \n                wallet_id = $1 \n            ORDER BY created_at DESC\n            LIMIT 10;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "amount",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "type: TransactionType",
+        "type_info": {
+          "Custom": {
+            "name": "transaction_type",
+            "kind": {
+              "Enum": [
+                "c",
+                "d"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "accdc835a52307042b7c13bcb596fc935cf381e2e4e1dac8f4fbb3d49a1eb1ec"
+}
