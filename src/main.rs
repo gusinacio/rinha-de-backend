@@ -11,9 +11,12 @@ mod validator;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").unwrap();
+
     let pool = PgPoolOptions::new()
         .max_connections(10)
-        .connect("postgres://postgres:postgres@localhost:5434/postgres")
+        .connect(&database_url)
         .await?;
     let database = Database::new(pool);
     let clients = client_router();
