@@ -17,12 +17,16 @@ pub enum ServerError {
 
     #[error(transparent)]
     SqlxError(#[from] sqlx::Error),
+
+    #[error("Redis error {0}")]
+    RedisError(#[from] redis::RedisError),
 }
 
 impl IntoResponse for ServerError {
     fn into_response(self) -> axum::response::Response {
         let status_code = match self {
             ServerError::UserNotFound(_) => StatusCode::NOT_FOUND,
+            ServerError::RedisError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ServerError::ValidationError(_)
             | ServerError::FailedToSerialize(_)
             | ServerError::AxumFormRejection(_)

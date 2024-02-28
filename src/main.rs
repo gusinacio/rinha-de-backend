@@ -1,5 +1,7 @@
 use axum::Router;
-use database::Database;
+use database::CachedDatabase;
+use database::PostgresDatabase;
+use redis::Client;
 use router::client_router;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
@@ -8,6 +10,8 @@ mod database;
 mod error;
 mod router;
 mod validator;
+
+type Database = CachedDatabase<PostgresDatabase>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,7 +28,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .max_connections(database_connections)
         .connect(&database_url)
         .await?;
-    let database = Database::new(pool);
+    let database = PostgresDatabase::new(pool);
+
+    let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let redis = Client::open(redis_url)?;
+    let database = CachedDatabase::new(redis, database);
     let clients = client_router();
     let app = Router::new()
         .nest("/clientes", clients)

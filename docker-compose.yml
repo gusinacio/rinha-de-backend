@@ -13,6 +13,15 @@ services:
         limits:
           cpus: "0.75"
           memory: "200MB"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "50MB"
   app1: &app
     build: .
     hostname: api01

@@ -7,9 +7,10 @@ use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::{
-    database::{Balance, Database, Statement, Transaction, TransactionType},
+    database::{Balance, Statement, Transaction, TransactionRepository, TransactionType},
     error::ServerError,
     validator::ValidatedJson,
+    Database,
 };
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
