@@ -5,6 +5,7 @@ CREATE TABLE wallet (
     total INTEGER DEFAULT 0 NOT NULL,
     CHECK (- total <= "limit")
 );
+CREATE INDEX wallet_limit_total_index ON wallet(id,"limit",total);
 
 -- Create enum
 CREATE TYPE transaction_type AS ENUM ('c', 'd');
@@ -18,6 +19,8 @@ CREATE TABLE transaction (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (wallet_id) REFERENCES wallet(id)
 );
+
+CREATE INDEX wallet_id_index ON transaction(wallet_id);
 
 INSERT INTO wallet ("limit", total) VALUES (100000, 0);
 INSERT INTO wallet ("limit", total) VALUES (80000, 0);
