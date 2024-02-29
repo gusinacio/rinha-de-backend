@@ -11,7 +11,7 @@ mod error;
 mod router;
 mod validator;
 
-type Database = CachedDatabase<PostgresDatabase>;
+type Database = database::Database;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -28,11 +28,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .max_connections(database_connections)
         .connect(&database_url)
         .await?;
-    let database = PostgresDatabase::new(pool);
+    let postgres_db = PostgresDatabase::new(pool);
 
-    let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL must be set");
-    let redis = Client::open(redis_url)?;
-    let database = CachedDatabase::new(redis, database);
+    let redis_url = std::env::var("REDIS_URL").ok();
+    let database = match redis_url {
+        Some(redis_url) => {
+            let redis = Client::open(redis_url)?;
+            let cached_database = CachedDatabase::new(redis, postgres_db);
+            Database::Cached(cached_database)
+        }
+        None => Database::Postgres(postgres_db),
+    };
     let clients = client_router();
     let app = Router::new()
         .nest("/clientes", clients)

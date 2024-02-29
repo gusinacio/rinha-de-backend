@@ -47,14 +47,26 @@ impl TransactionRepository for CachedDatabase<PostgresDatabase> {
         let balance = self.database.add_transaction(id, transaction).await?;
 
         // update the cache
-        connection
-            .incr(format!("balance:{id}:total"), tx_value)
-            .await?;
         // set limit
         if let None = limit {
             connection
                 .set(format!("balance:{id}:limit"), balance.limit)
                 .await?;
+        }
+
+        match total {
+            // something is wrong, update the cache
+            Some(total) if total + tx_value != balance.total => {
+                println!("Cache is out of sync, updating");
+                connection
+                    .set(format!("balance:{id}:total"), balance.total)
+                    .await?
+            }
+            _ => {
+                connection
+                    .incr(format!("balance:{id}:total"), tx_value)
+                    .await?
+            }
         }
 
         Ok(balance)

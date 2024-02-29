@@ -4,9 +4,35 @@ mod cache;
 mod models;
 mod postgres;
 
+pub use cache::CachedDatabase;
 pub use models::*;
 pub use postgres::PostgresDatabase;
-pub use cache::CachedDatabase;
+
+#[derive(Clone)]
+pub enum Database {
+    Postgres(PostgresDatabase),
+    Cached(CachedDatabase<PostgresDatabase>),
+}
+
+impl TransactionRepository for Database {
+    async fn add_transaction(
+        &self,
+        id: u32,
+        transaction: Transaction,
+    ) -> Result<Balance, ServerError> {
+        match self {
+            Database::Postgres(database) => database.add_transaction(id, transaction).await,
+            Database::Cached(database) => database.add_transaction(id, transaction).await,
+        }
+    }
+
+    async fn get_statement(&self, id: &u32) -> Result<Statement, ServerError> {
+        match self {
+            Database::Postgres(database) => database.get_statement(id).await,
+            Database::Cached(database) => database.get_statement(id).await,
+        }
+    }
+}
 
 pub trait TransactionRepository {
     async fn add_transaction(
