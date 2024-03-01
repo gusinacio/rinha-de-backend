@@ -1584,6 +1584,7 @@ dependencies = [
  "bson",
  "chrono",
  "dotenvy",
+ "futures-util",
  "mongodb",
  "redis",
  "serde",

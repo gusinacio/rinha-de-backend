@@ -9,15 +9,12 @@ pub struct Statement {
     pub last_transactions: Vec<Transaction>,
 }
 
-impl Statement {
+impl Balance {
     pub fn new(limit: u32) -> Self {
         Self {
-            balance: Balance {
-                total: 0,
-                statement_date: Some(Utc::now()),
-                limit,
-            },
-            last_transactions: Vec::new(),
+            total: 0,
+            statement_date: None,
+            limit,
         }
     }
 }

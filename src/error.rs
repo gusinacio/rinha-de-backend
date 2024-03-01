@@ -23,6 +23,9 @@ pub enum ServerError {
 
     #[error("Mongo error {0}")]
     MongoError(#[from] mongodb::error::Error),
+
+    #[error("Bson error {0}")]
+    BsonError(#[from] bson::de::Error),
 }
 
 impl IntoResponse for ServerError {
@@ -35,6 +38,7 @@ impl IntoResponse for ServerError {
             | ServerError::AxumFormRejection(_)
             | ServerError::SqlxError(_)
             | ServerError::MongoError(_)
+            | ServerError::BsonError(_)
             | ServerError::TransactionWouldExceedLimit => StatusCode::UNPROCESSABLE_ENTITY,
         };
         (status_code, self.to_string()).into_response()
