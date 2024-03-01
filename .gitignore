@@ -3,3 +3,5 @@
 start-test.sh
 /.vscode
 .env
+/.idea
+*.swp
