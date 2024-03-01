@@ -9,11 +9,24 @@ pub struct Statement {
     pub last_transactions: Vec<Transaction>,
 }
 
+impl Statement {
+    pub fn new(limit: u32) -> Self {
+        Self {
+            balance: Balance {
+                total: 0,
+                statement_date: Some(Utc::now()),
+                limit,
+            },
+            last_transactions: Vec::new(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Balance {
     pub total: i32,
     #[serde(rename = "data_extrato")]
-    pub statement_date: chrono::DateTime<Utc>,
+    pub statement_date: Option<chrono::DateTime<Utc>>,
     #[serde(rename = "limite")]
     pub limit: u32,
 }
@@ -27,6 +40,7 @@ pub struct Transaction {
     #[serde(rename = "descricao")]
     pub description: String,
     #[serde(rename = "realizada_em")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: chrono::DateTime<Utc>,
 }
 

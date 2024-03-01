@@ -30,7 +30,7 @@ impl TransactionRepository for PostgresDatabase {
         let balance = Balance {
             total: balance.total,
             limit: balance.limit as u32,
-            statement_date: Utc::now(),
+            statement_date: Some(Utc::now()),
         };
         sqlx::query!(
             "INSERT INTO transaction (wallet_id, amount, \"type\", description) VALUES ($1, $2, $3, $4);",
@@ -55,7 +55,7 @@ impl TransactionRepository for PostgresDatabase {
         let balance = Balance {
             total: balance.total,
             limit: balance.limit as u32,
-            statement_date: Utc::now(),
+            statement_date: Some(Utc::now()),
         };
         let transactions = sqlx::query!(
             r#"SELECT 

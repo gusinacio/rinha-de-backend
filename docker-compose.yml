@@ -22,12 +22,22 @@ services:
         limits:
           cpus: "0.25"
           memory: "50MB"
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: "300MB"
   app1: &app
     build: .
     hostname: api01
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
-      - DATABASE_CONNECTIONS=10
+      - DATABASE_CONNECTIONS=2
+      # - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
     deploy:

@@ -20,6 +20,9 @@ pub enum ServerError {
 
     #[error("Redis error {0}")]
     RedisError(#[from] redis::RedisError),
+
+    #[error("Mongo error {0}")]
+    MongoError(#[from] mongodb::error::Error),
 }
 
 impl IntoResponse for ServerError {
@@ -31,6 +34,7 @@ impl IntoResponse for ServerError {
             | ServerError::FailedToSerialize(_)
             | ServerError::AxumFormRejection(_)
             | ServerError::SqlxError(_)
+            | ServerError::MongoError(_)
             | ServerError::TransactionWouldExceedLimit => StatusCode::UNPROCESSABLE_ENTITY,
         };
         (status_code, self.to_string()).into_response()

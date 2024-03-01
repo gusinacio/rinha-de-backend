@@ -1,16 +1,19 @@
+pub use cache::CachedDatabase;
+pub use models::*;
+pub use mongo::MongoDatabase;
+pub use postgres::PostgresDatabase;
+
 use crate::error::ServerError;
 
 mod cache;
 mod models;
 mod postgres;
-
-pub use cache::CachedDatabase;
-pub use models::*;
-pub use postgres::PostgresDatabase;
+mod mongo;
 
 #[derive(Clone)]
 pub enum Database {
     Postgres(PostgresDatabase),
+    Mongo(MongoDatabase),
     Cached(CachedDatabase<PostgresDatabase>),
 }
 
@@ -23,13 +26,16 @@ impl TransactionRepository for Database {
         match self {
             Database::Postgres(database) => database.add_transaction(id, transaction).await,
             Database::Cached(database) => database.add_transaction(id, transaction).await,
+            Database::Mongo(database) => database.add_transaction(id, transaction).await,
         }
     }
+
 
     async fn get_statement(&self, id: &u32) -> Result<Statement, ServerError> {
         match self {
             Database::Postgres(database) => database.get_statement(id).await,
             Database::Cached(database) => database.get_statement(id).await,
+            Database::Mongo(database) => database.get_statement(id).await,
         }
     }
 }
@@ -45,8 +51,9 @@ pub trait TransactionRepository {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::router::NewTransaction;
+
+    use super::*;
 
     #[test]
     fn should_not_exceed_limit() {
