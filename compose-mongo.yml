@@ -1,0 +1,43 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "300MB"
+  app1: &app
+    build: .
+    hostname: api01
+    environment:
+      - DATABASE_TYPE=mongo
+      - MONGO_URL=mongodb://mongodb:27017/rinha
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "50MB"
+
+  app2:
+    <<: *app
+    hostname: api02
+
+  haproxy:
+    image: haproxy:2.9.4
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - app1
+      - app2
+    ports:
+      - "9999:9999"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "50MB"

@@ -6,6 +6,7 @@ use tokio::net::TcpListener;
 use database::CachedDatabase;
 use database::PostgresDatabase;
 use router::client_router;
+
 use crate::database::MongoDatabase;
 
 mod database;
@@ -18,12 +19,11 @@ type Database = database::Database;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
+    let database_type = std::env::var("DATABASE_TYPE").unwrap_or("postgres".to_string());
 
-    let database_url = std::env::var("MONGO_URL").expect("DATABASE_URL must be set");
-    // parse url and get protocol from DATABASE_URL
-    let url = url::Url::parse(&database_url)?;
-    let database = match url.scheme() {
+    let database = match database_type.as_str() {
         "postgres" => {
+            let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
             let database_connections = std::env::var("DATABASE_CONNECTIONS")
                 .unwrap_or("10".to_string())
                 .parse()
@@ -45,14 +45,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 None => Database::Postgres(postgres_db),
             }
         }
-        "mongodb" => {
+        "mongo" => {
+            let database_url = std::env::var("MONGO_URL").expect("MONGO_URL must be set");
             let client = mongodb::Client::with_uri_str(&database_url).await?;
             let mongo = MongoDatabase::new(client).await;
             Database::Mongo(mongo)
-        },
-        _ => panic!("DATABASE_URL must be a postgres URL"),
+        }
+        _ => panic!("DATABASE_TYPE must be a postgres or mongo"),
     };
-
 
     let clients = client_router();
     let app = Router::new()
