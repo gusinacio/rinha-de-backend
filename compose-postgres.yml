@@ -14,6 +14,7 @@ services:
           cpus: "0.75"
           memory: "200MB"
   app1: &app
+    image: gustainacio/rinha
     build: .
     hostname: api01
     environment:
